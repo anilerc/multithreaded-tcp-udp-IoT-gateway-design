@@ -53,12 +53,4 @@ public class ServerMessenger {
             System.out.println("Error during connection establishment: " + e.getMessage());
         }
     }
-
-    public boolean getIsHandshakeDone() {
-        return this.isHandshakeDone;
-    }
-
-    public void setIsHandshakeDone(boolean isHandshakeDone) {
-        this.isHandshakeDone = isHandshakeDone;
-    }
 }

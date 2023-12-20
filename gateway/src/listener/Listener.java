@@ -4,7 +4,7 @@ import sender.ServerMessenger;
 
 public abstract class Listener implements Runnable {
     private final ServerMessenger serverMessenger;
-    private volatile long lastReceivedTimestamp;
+    private long lastReceivedTimestamp;
 
     public Listener(ServerMessenger serverMessenger) {
         this.serverMessenger = serverMessenger;

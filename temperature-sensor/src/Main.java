@@ -22,6 +22,8 @@ public class Main {
                 var payload = getPayload(new String[]{"VALUE", "TEMPERATURE", Integer.toString(randomTemperatureValue), timestamp });
                 dataSender.println(payload);
 
+                System.out.println("Temperatür gönderiyo");
+
                 Thread.sleep(1000);
             }
 

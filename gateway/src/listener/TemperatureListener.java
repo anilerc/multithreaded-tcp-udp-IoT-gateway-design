@@ -16,27 +16,28 @@ public class TemperatureListener extends Listener {
 
     @Override
     public void run() {
+        ServerSocket serverSocket;
         try {
-            ServerSocket serverSocket = new ServerSocket(1235);
+            serverSocket = new ServerSocket(1235);
+        } catch (IOException e) {
+            System.out.println("Error creating server socket.");
+            return;
+        }
 
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                var inputStream = clientSocket.getInputStream();
-
-                var reader = new InputStreamReader(inputStream);
-
-                BufferedReader bufferedReader = new BufferedReader(reader);
+        while (true) {
+            try (Socket clientSocket = serverSocket.accept();
+                 InputStreamReader inputStream = new InputStreamReader(clientSocket.getInputStream());
+                 BufferedReader bufferedReader = new BufferedReader(inputStream)) {
 
                 String inputLine;
-
                 while ((inputLine = bufferedReader.readLine()) != null) {
                     getServerMessenger().sendMessageToServer(inputLine);
                     setLastReceivedTimestamp(System.currentTimeMillis());
                 }
-            }
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            } catch (IOException e) {
+                System.out.println("Connection lost to temperature sensor.");
+            }
         }
     }
 }

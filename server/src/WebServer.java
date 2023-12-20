@@ -4,36 +4,34 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class WebServer implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Mevcut humidity değerleri" + Main.humidityValues);
+        System.out.println("Web server thread is running.");
         try {
             HttpServer httpServer = HttpServer.create(new InetSocketAddress(8082), 0);
             httpServer.setExecutor(null);
 
             httpServer.createContext("/humidity", (httpExchange) -> {
-                System.out.println("Generationda kullanılan değerler" +  Main.humidityValues);
-                var response = generateHTML("Humidity Values", Main.humidityValues);
+                var response = generateHTML("Humidity Values", humidityValues);
                 sendHttpResponse(httpExchange, response);
             });
 
             httpServer.createContext("/temperature", (httpExchange) -> {
-                var response = generateHTML("Temperature Values", Main.temperatureValues);
+                var response = generateHTML("Temperature Values", temperatureValues);
                 sendHttpResponse(httpExchange, response);
             });
 
             httpServer.createContext("/humidity/health", (httpExchange) -> {
-                var response = generateHTML("Humidity Health Checks", Main.humidityHealthChecks);
+                var response = generateHTML("Humidity Health Checks", humidityHealthChecks);
                 sendHttpResponse(httpExchange, response);
             });
 
             httpServer.createContext("/temperature/health", (httpExchange) -> {
-                var response = generateHTML("Temperature Health Checks", Main.temperatureHealthChecks);
+                var response = generateHTML("Temperature Health Checks", temperatureHealthChecks);
                 sendHttpResponse(httpExchange, response);
             });
 
@@ -43,7 +41,7 @@ public class WebServer implements Runnable {
         }
     }
 
-    private StringBuilder generateHTML(String title, ConcurrentLinkedQueue<Object> dataToRender) {
+    private StringBuilder generateHTML(String title, ConcurrentLinkedQueue<String> dataToRender) {
         StringBuilder response = new StringBuilder("<html><body><h1>"+title+"</h1><ul>");
         for (Object object : dataToRender) {
             response.append("<li>").append(object).append("</li>");
@@ -62,9 +60,33 @@ public class WebServer implements Runnable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
+    private final ConcurrentLinkedQueue<String> humidityHealthChecks;
+    private final ConcurrentLinkedQueue<String> temperatureHealthChecks;
+    private final ConcurrentLinkedQueue<String> humidityValues;
+    private final ConcurrentLinkedQueue<String> temperatureValues;
 
-    
+    public WebServer() {
+        this.humidityHealthChecks = new ConcurrentLinkedQueue<>();
+        this.temperatureHealthChecks = new ConcurrentLinkedQueue<>();
+        this.humidityValues = new ConcurrentLinkedQueue<>();
+        this.temperatureValues = new ConcurrentLinkedQueue<>();
+    }
+
+    public ConcurrentLinkedQueue<String> getHumidityHealthChecks() {
+        return humidityHealthChecks;
+    }
+
+    public ConcurrentLinkedQueue<String> getTemperatureHealthChecks() {
+        return temperatureHealthChecks;
+    }
+
+    public ConcurrentLinkedQueue<String> getHumidityValues() {
+        return humidityValues;
+    }
+
+    public ConcurrentLinkedQueue<String> getTemperatureValues() {
+        return temperatureValues;
+    }
 }
