@@ -1,4 +1,4 @@
-## Multithreaded Gateway-Server Model Development with Application Layer Protocol Design
+### Multithreaded Gateway-Server Model Development with Application Layer Protocol Design
 
 ##### System design flow
 ![System design flow](report/flow.png)
