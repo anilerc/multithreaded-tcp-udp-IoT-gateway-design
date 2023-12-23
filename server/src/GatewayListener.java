@@ -7,6 +7,9 @@ import java.net.Socket;
 
 public class GatewayListener implements Runnable {
 
+    // This thread will be responsible from listening to the gateway and updating
+    // the database.
+
     private final WebServer webServer;
     private boolean handshakeEstablished;
 
@@ -15,11 +18,13 @@ public class GatewayListener implements Runnable {
         this.handshakeEstablished = false;
     }
 
+    // Constantly listen to the gateway over TCP and the custom defined protocol.
     @Override
     public void run() {
         try {
             System.out.println("Gateway listener is running.");
             ServerSocket serverSocket = new ServerSocket(1236);
+
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 var inputStream = clientSocket.getInputStream();
@@ -41,6 +46,8 @@ public class GatewayListener implements Runnable {
         }
     }
 
+    // Upon receiving a new data from the gateway, establish handshake or
+    // process&parse the data if connection is already done
     private void processIncomingData(String input, PrintWriter writer) {
         if ("INITIALIZE".equals(input)) {
             System.out.println("Received INITIALIZE. Sending ACKNOWLEDGEMENT...");
@@ -48,11 +55,15 @@ public class GatewayListener implements Runnable {
             this.handshakeEstablished = true;
             System.out.println("ACK sent to gateway. Handshake is done. Server ready to accept data.");
         } else if (handshakeEstablished) {
-            System.out.println("SERVER: Data received. Parsing and processing now.");
+            Helper.logOperation(Thread.currentThread(), input.getBytes());
             parsePayload(input);
         }
     }
 
+    // Parse the payload to understand whether if the incoming data is a health
+    // check or new value update. Then, add the new data to the database.
+    // The updated data will be displayed by the web server in the form of an HTML
+    // file over localhost HTTP.
     private void parsePayload(String payload) {
         String[] tokens = payload.split("\\|");
         String type = tokens[1];

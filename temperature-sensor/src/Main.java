@@ -5,10 +5,10 @@ import java.time.LocalDateTime;
 import java.util.Random;
 
 public class Main {
-    public static final String humidityValues = null;
-
     public static void main(String[] args) {
 
+        // Temperature sensor generated new values every second and sends to gateway
+        // Uses TCP socket programming
         try {
             Socket tcpSocket = new Socket("127.0.0.1", 1235);
 
@@ -19,11 +19,10 @@ public class Main {
                 int randomTemperatureValue = 20 + random.nextInt(11);
                 var timestamp = LocalDateTime.now().toString();
 
-                var payload = getPayload(new String[]{"VALUE", "TEMPERATURE", Integer.toString(randomTemperatureValue), timestamp });
+                var payload = getPayload(
+                        new String[] { "VALUE", "TEMPERATURE", Integer.toString(randomTemperatureValue), timestamp });
                 dataSender.println(payload);
-
-                System.out.println("Temperatür gönderiyo");
-
+                Helper.logOperation(payload);
                 Thread.sleep(1000);
             }
 

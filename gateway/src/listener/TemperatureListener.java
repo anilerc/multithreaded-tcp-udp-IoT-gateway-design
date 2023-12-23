@@ -1,5 +1,6 @@
 package listener;
 
+import helper.Helper;
 import sender.ServerMessenger;
 
 import java.io.BufferedReader;
@@ -14,6 +15,8 @@ public class TemperatureListener extends Listener {
         super(serverMessenger);
     }
 
+    // Listening to the temperature sensor over a constant TCP connection. Also
+    // handles connection resets.
     @Override
     public void run() {
         ServerSocket serverSocket;
@@ -26,11 +29,11 @@ public class TemperatureListener extends Listener {
 
         while (true) {
             try (Socket clientSocket = serverSocket.accept();
-                 InputStreamReader inputStream = new InputStreamReader(clientSocket.getInputStream());
-                 BufferedReader bufferedReader = new BufferedReader(inputStream)) {
-
+                    InputStreamReader inputStream = new InputStreamReader(clientSocket.getInputStream());
+                    BufferedReader bufferedReader = new BufferedReader(inputStream)) {
                 String inputLine;
                 while ((inputLine = bufferedReader.readLine()) != null) {
+                    Helper.logOperation(Thread.currentThread(), inputLine.getBytes(), Helper.OperationType.SENDING);
                     getServerMessenger().sendMessageToServer(inputLine);
                     setLastReceivedTimestamp(System.currentTimeMillis());
                 }

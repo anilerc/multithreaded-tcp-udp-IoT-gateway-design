@@ -1,5 +1,7 @@
 package sender;
 
+import helper.Helper;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,7 +10,7 @@ import java.net.Socket;
 
 public class ServerMessenger {
 
-    private boolean isHandshakeDone;
+    private boolean isHandshakeDone; // Flag is set to 1 after ACKNOWLEDGEMENT
     private Socket tcpSocket;
     private PrintWriter dataSender;
     private BufferedReader dataReceiver;
@@ -24,16 +26,23 @@ public class ServerMessenger {
         }
     }
 
+    // Sends message to the server ONLY after the handshake is completed. Otherwise,
+    // it will try to establish a connection.
     public void sendMessageToServer(String message) {
         if (this.isHandshakeDone) {
             dataSender.println(message);
-            System.out.println("Sent to server from gateway: " + message);
+            Helper.logOperation(Thread.currentThread(), message.getBytes(), Helper.OperationType.SENDING);
+            System.out.println("Gateway sent " + message + " to the server.");
         } else {
-            System.out.println("Data can only be sent after connection is established with handshake! Establishing connection now...");
+            System.out.println(
+                    "Data can only be sent after connection is established with handshake! Establishing connection now...");
             establishConnection();
         }
     }
 
+    // Sends "INITIALIZE" to server and waits for an "ACKNOWLEDGEMENT" response.
+    // After this point, handshake is completed and the flag is set to 1.
+    // From now on, data can be send.
     public void establishConnection() {
         try {
             // Sending INITIALIZE message to server

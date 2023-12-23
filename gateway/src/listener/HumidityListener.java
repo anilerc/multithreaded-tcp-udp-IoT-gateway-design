@@ -1,5 +1,6 @@
 package listener;
 
+import helper.Helper;
 import sender.ServerMessenger;
 
 import java.io.IOException;
@@ -12,6 +13,7 @@ public class HumidityListener extends Listener {
         super(serverMessenger);
     }
 
+    // Listening to the humidity sensor over a constant UDP connection:
     @Override
     public void run() {
         try {
@@ -21,8 +23,10 @@ public class HumidityListener extends Listener {
             while (true) {
                 DatagramPacket receivePacket = new DatagramPacket(receivedData, receivedData.length);
                 udpSocket.receive(receivePacket);
-                setLastReceivedTimestamp(System.currentTimeMillis());
+                setLastReceivedTimestamp(System.currentTimeMillis()); // Setting the "lastReceived" timestamp to later
+                                                                      // use for periodic health checks
                 String message = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                Helper.logOperation(Thread.currentThread(), message.getBytes(), Helper.OperationType.SENDING);
                 if (!message.split("\\|")[0].equals("HEALTHCHECK"))
                     getServerMessenger().sendMessageToServer(message);
             }

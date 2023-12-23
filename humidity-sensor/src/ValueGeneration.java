@@ -6,6 +6,10 @@ import java.time.LocalDateTime;
 import java.util.Random;
 
 public class ValueGeneration implements Runnable {
+
+    // Humidity sensor generates random values and sends to gateway only if the
+    // value is over 80.
+    // Using UDP socket programming.
     @Override
     public void run() {
         try {
@@ -20,12 +24,14 @@ public class ValueGeneration implements Runnable {
                 if (randomHumidityValue > 80) {
                     var timestamp = LocalDateTime.now().toString();
 
-                    byte[] bytesToSend = getPayload(new String[]{"VALUE", "HUMIDITY", Integer.toString(randomHumidityValue), timestamp});
+                    byte[] bytesToSend = Helper.buildPayload(
+                            new String[] { "VALUE", "HUMIDITY", Integer.toString(randomHumidityValue), timestamp });
 
                     DatagramPacket packetToSend = new DatagramPacket(bytesToSend, bytesToSend.length, gatewayIpAddress,
                             1234);
 
                     udpSocket.send(packetToSend);
+                    Helper.logOperation(Thread.currentThread(), bytesToSend);
                 }
 
                 Thread.sleep(1000);
@@ -38,10 +44,4 @@ public class ValueGeneration implements Runnable {
         }
     }
 
-    public static byte[] getPayload(String[] tokens) {
-        String separator = "|";
-        String str = String.join(separator, tokens);
-
-        return str.getBytes();
-    }
 }

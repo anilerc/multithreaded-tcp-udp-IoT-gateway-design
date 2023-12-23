@@ -11,7 +11,6 @@ public class Monitor implements Runnable {
     private final long sleepTime;
     private final Listener listener;
 
-
     public Monitor(ServerMessenger serverMessenger, long sleepTime, String name, Listener listener) {
         this.serverMessenger = serverMessenger;
         this.sleepTime = sleepTime;
@@ -19,6 +18,8 @@ public class Monitor implements Runnable {
         this.listener = listener;
     }
 
+    // Performing health checks based on an interval, checking if the sensors sent
+    // data or not
     @Override
     public void run() {
         while (true) {
@@ -41,7 +42,7 @@ public class Monitor implements Runnable {
 
     public String buildPayload(String result) {
         String separator = "|";
-        String[] tokens = {"HEALTHCHECK", this.name, result, LocalDateTime.now().toString()};
+        String[] tokens = { "HEALTHCHECK", this.name, result, LocalDateTime.now().toString() };
         return String.join(separator, tokens);
     }
 }
